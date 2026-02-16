@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barcelona — Un barrio cada semana</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: Georgia, 'Times New Roman', serif; background: #FAFAF8; color: #333; }
+    .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 48px 24px 40px; text-align: center; }
+    .hero-sub { font-size: 14px; letter-spacing: 4px; text-transform: uppercase; opacity: 0.6; margin-bottom: 12px; }
+    .hero h1 { font-size: 36px; font-weight: normal; margin: 0 0 8px; letter-spacing: 1px; }
+    .hero h2 { font-size: 18px; font-weight: normal; margin: 0 0 16px; opacity: 0.7; font-style: italic; }
+    .hero-info { font-size: 13px; opacity: 0.5; max-width: 400px; margin: 0 auto; line-height: 1.5; }
+    .sun-banner { background: #FFF8E7; padding: 14px 24px; font-size: 13px; color: #8B7355; text-align: center; line-height: 1.5; border-bottom: 1px solid #E8DCC8; }
+    .cards { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+    .card { background: white; border-radius: 12px; margin-bottom: 12px; cursor: pointer; overflow: hidden; border: 1px solid #e8e8e8; transition: transform 0.15s, box-shadow 0.15s; display: flex; }
+    .card:active { transform: scale(0.98); }
+    @media(hover:hover) { .card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); } }
+    .card-color { width: 72px; min-height: 88px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+    .card-emoji { font-size: 28px; margin-bottom: 4px; }
+    .card-sem { font-size: 11px; opacity: 0.8; }
+    .card-body { padding: 12px 16px; flex: 1; min-width: 0; }
+    .card-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .card-name { font-size: 18px; color: #222; font-weight: normal; }
+    .card-date { font-size: 12px; color: #999; flex-shrink: 0; margin-left: 8px; }
+    .card-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .card-desc { font-size: 13px; color: #666; margin-top: 6px; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+    /* Detail view */
+    .detail { min-height: 100vh; }
+    .detail-header { color: white; padding: 32px 24px 28px; position: relative; text-align: center; }
+    .back-btn { position: absolute; top: 16px; left: 16px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px; font-family: inherit; }
+    .back-btn:active { background: rgba(255,255,255,0.35); }
+    .detail-emoji { font-size: 48px; margin: 24px 0 8px; }
+    .detail-name { font-size: 32px; font-weight: normal; letter-spacing: 1px; }
+    .detail-district { opacity: 0.8; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+    .detail-meta { display: flex; justify-content: center; gap: 32px; padding: 16px 24px; font-size: 14px; color: #555; }
+    .detail-content { max-width: 640px; margin: 0 auto; padding: 24px 20px 60px; }
+    .detail-desc { font-size: 16px; line-height: 1.7; color: #333; margin-bottom: 32px; text-align: justify; }
+    .route-box { border-radius: 12px; padding: 16px 20px; margin-bottom: 32px; }
+    .route-title { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+    .route-text { font-size: 14px; line-height: 1.6; color: #444; }
+    .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 16px; padding-bottom: 8px; border-bottom-width: 2px; border-bottom-style: solid; }
+    .poi { margin-bottom: 20px; }
+    .poi h4 { font-size: 16px; color: #222; margin-bottom: 4px; }
+    .poi p { font-size: 14px; color: #555; line-height: 1.5; }
+    .rest-card { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; cursor: pointer; border: 1px solid #e5e5e5; transition: all 0.2s; }
+    .rest-card.active { border-width: 2px; }
+    .rest-top { display: flex; justify-content: space-between; align-items: center; }
+    .rest-name { font-size: 16px; font-weight: bold; color: #222; }
+    .rest-price { font-size: 12px; margin-left: 8px; padding: 2px 8px; border-radius: 10px; }
+    .rest-type { font-size: 13px; color: #777; margin-top: 2px; }
+    .rest-note { font-size: 14px; color: #444; line-height: 1.5; margin-top: 10px; }
+    .arrow { font-size: 12px; color: #999; }
+
+    .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .check-label { font-size: 13px; color: #777; }
+    .done-badge { display: inline-block; font-size: 11px; background: #2D6A4F; color: white; padding: 2px 8px; border-radius: 8px; margin-left: 8px; }
+    .card.done { opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const N = [
+      {
+        week:1, date:"22 feb", sunset:"18:32", name:"Sants", district:"Sants-Montjuïc", emoji:"🚂", color:"#C85A3D", lc:"#FDF0EC",
+        desc:"El barrio obrero por excelencia de Barcelona. Antiguo municipio independiente anexionado en 1897, Sants conserva una identidad fortísima, con su famosa Festa Major y un tejido comercial de los más vivos de la ciudad. La calle de Sants es una de las calles comerciales más largas de Europa.",
+        pts:[
+          {n:"Calle de Sants",t:"Arteria comercial del barrio, más de 1 km de tiendas y vida local. Pasea desde Plaça de Sants hasta Hostafrancs."},
+          {n:"Parc de l'Espanya Industrial",t:"Antiguo solar de fábrica textil. Diseño postmoderno con torres-faro icónicas y lago artificial. Perfecto para el atardecer."},
+          {n:"Plaça d'Osca",t:"El corazón social del barrio. Ambiente vecinal auténtico, terrazas y el pulso real de Sants."},
+          {n:"Mercat de Sants",t:"Mercado municipal modernizado pero con esencia. Ideal para entender la vida cotidiana del barrio."},
+          {n:"Cotxeres de Sants",t:"Antiguas cocheras de tranvías reconvertidas en centro cultural. Consulta si hay exposición o evento."}
+        ],
+        rest:[
+          {n:"La Mundana",type:"Vermutería gastronómica",p:"€€",t:"Referente del barrio. Tapas clásicas reinventadas con toque gourmet. Ideal para empezar con un vermut y unas bravas de autor."},
+          {n:"Mula",type:"Cocina griega + vinos naturales",p:"€",t:"Recetas griegas con técnica de alta cocina. Ningún plato supera los 14€. Terraza y música excelentes."},
+          {n:"Bodega Can Mantega",type:"Bodega tradicional",p:"€",t:"Bodega centenaria con vermut de barril, capipota, bombes y seitons fumats. Auténtica experiencia de barrio."}
+        ],
+        route:"Metro Sants Estació → Parc Espanya Industrial (atardecer) → Calle de Sants dirección Hostafrancs → Plaça d'Osca → Mercat de Sants → Cena"
+      },
+      {
+        week:2, date:"1 mar", sunset:"18:42", name:"Les Corts", district:"Les Corts", emoji:"⛪", color:"#2D6A4F", lc:"#EDF5F0",
+        desc:"Antiguo pueblo rural que conserva un casco antiguo sorprendente escondido entre bloques modernos. La Plaça de la Concòrdia es una joya inesperada. Barrio residencial con rincones que la mayoría de barceloneses desconocen.",
+        pts:[
+          {n:"Plaça de la Concòrdia",t:"Corazón del antiguo pueblo. Iglesia de Santa Maria del Remei, escaleras, terrazas... Un viaje en el tiempo."},
+          {n:"Jardins de la Maternitat",t:"Complejo modernista espectacular (1878). Pabellones de Domènech i Montaner entre jardines. Secreto bien guardado."},
+          {n:"Can Rosés - Biblioteca",t:"Antigua masía del siglo XIX reconvertida en biblioteca pública. Arquitectura preciosa."},
+          {n:"Passatge Tubella",t:"Callejuela peatonal de casas adosadas con jardín. Un rincón de pueblo en medio de la ciudad."},
+          {n:"Archivo Fotográfico de Barcelona",t:"Dentro del Parc de la Maternitat. Exposiciones de la Barcelona de antaño, entrada gratuita."}
+        ],
+        rest:[
+          {n:"Bangkok Café",type:"Tailandés auténtico",p:"€€",t:"En el Passatge Tubella. Uno de los mejores tailandeses de Barcelona. Sus curris son legendarios."},
+          {n:"Channai Massala Dosa",type:"Cocina del sur de India",p:"€",t:"El templo de la dosa en Barcelona. Creps gigantes de lentejas con más de 20 variedades."},
+          {n:"Gaig",type:"Alta cocina catalana",p:"€€€",t:"Institución de la cocina catalana. Canelones con crema de trufa legendarios. También tienda gourmet."}
+        ],
+        route:"Metro Les Corts → Passatge Tubella → Plaça Concòrdia → Jardins de la Maternitat → Archivo Fotográfico → Can Rosés → Cena"
+      },
+      {
+        week:3, date:"8 mar", sunset:"18:51", name:"Sarrià", district:"Sarrià-Sant Gervasi", emoji:"🏡", color:"#5C4B99", lc:"#F2F0F8",
+        desc:"El último pueblo en ser anexionado a Barcelona (1921). Sarrià conserva intacta su identidad de villa independiente: calles empedradas, plazas recoletas y una vida de pueblo dentro de la gran ciudad.",
+        pts:[
+          {n:"Plaça de Sarrià",t:"Centro neurálgico del antiguo pueblo. Iglesia de Sant Vicenç, mercadillos y ambiente de villa."},
+          {n:"Carrer Major de Sarrià",t:"Calle principal del antiguo pueblo. Tiendas históricas, pastelerías centenarias y casas señoriales."},
+          {n:"Monestir de Pedralbes",t:"Joya del gótico catalán (1327). Claustro de tres pisos. Pinturas murales de Ferrer Bassa. Cierra 17h en invierno."},
+          {n:"Jardins de la Tamarita",t:"Pequeño jardín señorial escondido. Ideal para un paseo tranquilo."},
+          {n:"Plaça del Consell de la Vila",t:"Donde estaba el antiguo ayuntamiento de Sarrià. Ambiente local y terrazas."}
+        ],
+        rest:[
+          {n:"Vivanda",type:"Cocina catalana de temporada",p:"€€",t:"Restaurante de barrio con terraza-jardín. Cocina de mercado con producto de proximidad."},
+          {n:"Foix de Sarrià",type:"Pastelería histórica (1886)",p:"€",t:"Edificio modernista precioso. Pasteles y chocolate. Imprescindible para merendar."},
+          {n:"Bar Tomàs",type:"Bar de tapas legendario",p:"€",t:"Las patatas bravas más famosas de Barcelona (hay debate). Institución del barrio desde 1971."}
+        ],
+        route:"FGC Sarrià → Plaça de Sarrià → Carrer Major → Jardins Tamarita → Plaça del Consell → Foix de Sarrià (merienda) → Cena"
+      },
+      {
+        week:4, date:"15 mar", sunset:"19:00", name:"Gràcia", district:"Gràcia", emoji:"🎭", color:"#B5651D", lc:"#FBF4EC",
+        desc:"La antigua Vila de Gràcia fue municipio independiente hasta 1897: espíritu rebelde, bohemio y alternativo. Sus plazas son el verdadero salón de estar del barrio. Cultura independiente, tiendas vintage y la Festa Major más famosa de Barcelona.",
+        pts:[
+          {n:"Plaça del Sol",t:"Epicentro de la vida social de Gràcia. Terrazas llenas a cualquier hora. Perfecta para sentarse y observar."},
+          {n:"Plaça de la Vila de Gràcia",t:"La más institucional, con la torre del reloj (Campanario) de 33 metros, símbolo del barrio."},
+          {n:"Plaça de la Virreina",t:"La más pintoresca. Iglesia de Sant Joan, árboles centenarios y una calma especial."},
+          {n:"Mercat de l'Abaceria",t:"Mercado tradicional del barrio. Ambiente local, paradas de toda la vida."},
+          {n:"Carrer Verdi y alrededores",t:"Eje cultural con cines de versión original, tiendas independientes y galerías."}
+        ],
+        rest:[
+          {n:"La Pepita",type:"Tapas creativas",p:"€€",t:"Referente del barrio. Tapas originales con producto de calidad. Siempre hay cola, pero merece la espera."},
+          {n:"Churrería Laietana",type:"Churrería tradicional",p:"€",t:"Para merendar antes de cenar. Churros artesanos de toda la vida."},
+          {n:"Botafumeiro",type:"Marisquería gallega",p:"€€€",t:"Capricho. Marisquería legendaria de Barcelona en la frontera de Gràcia."}
+        ],
+        route:"Metro Fontana → Carrer Verdi → Plaça de la Virreina → Mercat de l'Abaceria → Plaça del Sol → Plaça Vila de Gràcia → Cena"
+      },
+      {
+        week:5, date:"22 mar", sunset:"19:09", name:"El Raval", district:"Ciutat Vella", emoji:"🎨", color:"#8B1A1A", lc:"#F8EDED",
+        desc:"El barrio más multicultural y contradictorio de Barcelona. Del oscuro Barrio Chino a polo cultural con el MACBA y el CCCB. Conviven la Barcelona más canalla, la más creativa y la más diversa.",
+        pts:[
+          {n:"MACBA y Plaça dels Àngels",t:"Museo de Arte Contemporáneo y su plaza, epicentro del skate y la cultura urbana barcelonesa."},
+          {n:"CCCB",t:"Centro de Cultura Contemporánea. Exposiciones interesantes y patio interior espectacular."},
+          {n:"Antic Hospital de la Santa Creu",t:"Hospital gótico del siglo XV con claustro y jardines. Hoy alberga la Biblioteca de Catalunya. Paz absoluta."},
+          {n:"Rambla del Raval",t:"El bulevar del barrio con el famoso Gato de Botero. Vida multicultural en estado puro."},
+          {n:"Carrer dels Tallers",t:"Tiendas de discos, vintage y la cultura alternativa barcelonesa."}
+        ],
+        rest:[
+          {n:"Bar Cañete",type:"Cocina de barra",p:"€€€",t:"Uno de los mejores bares de barra de Barcelona. Producto excepcional cocinado a la vista. Reservar sí o sí."},
+          {n:"Casa Almirall",type:"Bar histórico (1860)",p:"€",t:"El bar más antiguo del Raval. Modernismo intacto, absenta y vermut. Para tomar algo antes de cenar."},
+          {n:"Koy Shunka",type:"Japonés estrella Michelin",p:"€€€",t:"Si quieres una cena especial, uno de los mejores japoneses de España. En el límite del Raval."}
+        ],
+        route:"Metro Universitat → Carrer dels Tallers → MACBA (exterior) → Antic Hospital Santa Creu → Rambla del Raval → CCCB (exterior) → Cena"
+      },
+      {
+        week:6, date:"29 mar", sunset:"20:18", name:"Barri Gòtic", district:"Ciutat Vella", emoji:"🏰", color:"#333333", lc:"#F0F0F0",
+        desc:"El corazón antiguo de Barcelona. 2.000 años de historia: restos romanos, la catedral medieval, el Call (barrio judío) y callejuelas donde perderse es el plan. ¡Cambio de hora este finde: una hora más de luz!",
+        pts:[
+          {n:"Plaça del Rei",t:"Conjunto monumental medieval más importante. Salón del Tinell, capilla Santa Àgata y torre del Rei Martí."},
+          {n:"El Call (barrio judío medieval)",t:"Callejuelas diminutas. Sinagoga Mayor, una de las más antiguas de Europa. Centro de Interpretación del Call."},
+          {n:"Plaça de Sant Felip Neri",t:"Plaza recoleta con marcas de metralla de la Guerra Civil. Uno de los rincones más emotivos de Barcelona."},
+          {n:"Temple d'August",t:"Cuatro columnas romanas escondidas en un patio interior del MUHBA. Gratuito."},
+          {n:"Catedral de Barcelona",t:"Gótica, con su claustro de las 13 ocas. Acceso gratuito en horarios de culto."}
+        ],
+        rest:[
+          {n:"Llamber",type:"Cocina catalana contemporánea",p:"€€",t:"Producto de proximidad y cocina catalana actualizada en un espacio bonito del Gòtic."},
+          {n:"Milk",type:"Bar-restaurante / Coctelería",p:"€€",t:"Brunch legendario pero también cenan. Coctelería en un sótano con encanto en pleno Gòtic."},
+          {n:"Grill Room",type:"Clásico barcelonés (1902)",p:"€€",t:"Interior art déco. Cocina catalana de toda la vida en un marco histórico impresionante."}
+        ],
+        route:"Metro Jaume I → Temple d'August → Plaça de Sant Felip Neri → Catedral (claustro) → El Call → Plaça del Rei → Cena"
+      },
+      {
+        week:7, date:"5 abr", sunset:"20:27", name:"El Born", district:"Ciutat Vella", emoji:"👑", color:"#1A5276", lc:"#EBF1F5",
+        desc:"El barrio medieval más elegante. El Born es zona de moda con profundidad histórica real: ruinas de 1714 en el Mercat del Born, Santa Maria del Mar, el Passeig del Born... Boutiques, cocktail bars y siglos de historia conviven.",
+        pts:[
+          {n:"Basílica de Santa Maria del Mar",t:"La catedral del pueblo. Gótico catalán en su máxima pureza. Inspiró 'La catedral del mar'. Gratuita en horario de culto."},
+          {n:"El Born Centre de Cultura i Memòria",t:"Antiguo mercado de hierro con las ruinas de la Barcelona destruida en 1714. Imprescindible."},
+          {n:"Passeig del Born",t:"Antiguo lugar de torneos medievales. Hoy eje de terrazas y vida social."},
+          {n:"Carrer de Montcada",t:"Palacios medievales reconvertidos en museos (Picasso). Arquitectura gótica y renacentista."},
+          {n:"Palau de la Música Catalana",t:"Obra maestra modernista de Domènech i Montaner. Fachada espectacular iluminada de noche."}
+        ],
+        rest:[
+          {n:"Cal Pep",type:"Cocina de barra de mercado",p:"€€€",t:"Institución barcelonesa. Barra donde el producto es el rey. Colas habituales, merece cada minuto."},
+          {n:"El Xampanyet",type:"Bodega de cava y tapas",p:"€",t:"Bodega centenaria con azulejos, cava de la casa y anchoas. El bar más fotografiado del Born."},
+          {n:"Bormujos",type:"Tapas andaluzas",p:"€",t:"Tapas generosas estilo sevillano en pleno Born. Ambiente animado y auténtico."}
+        ],
+        route:"Metro Jaume I → Carrer Montcada → Santa Maria del Mar → Passeig del Born → El Born Centre → Palau de la Música (exterior) → Cena"
+      },
+      {
+        week:8, date:"12 abr", sunset:"20:36", name:"La Barceloneta", district:"Ciutat Vella", emoji:"⚓", color:"#0077B6", lc:"#E8F4F9",
+        desc:"El barrio marinero. Construido en 1753 con diseño militar de calles rectas y estrechas, fue hogar de pescadores y trabajadores del puerto. Conserva ese espíritu popular junto al mar, con la ropa tendida entre balcones.",
+        pts:[
+          {n:"Plaça de la Barceloneta",t:"Centro del barrio. Mercado, iglesia barroca de Sant Miquel del Port y vida de barrio auténtica."},
+          {n:"Passeig Marítim",t:"Paseo junto al mar. Ideal con las últimas luces del día."},
+          {n:"Calles interiores",t:"Carrer de Sant Carles, Carrer de la Maquinista... Balcones diminutos, ropa tendida, el barrio real."},
+          {n:"Mercat de la Barceloneta",t:"Mercado remodelado. Paradas de pescado fresco del día, el alma del barrio marinero."},
+          {n:"Port Vell",t:"Para caminar al atardecer y ver los barcos."}
+        ],
+        rest:[
+          {n:"La Cova Fumada",type:"Bar de tapas marinero",p:"€",t:"Sin letrero. Donde se inventaron las bombas de la Barceloneta. Solo efectivo. Cierra temprano, ve pronto."},
+          {n:"Can Paixano (La Xampanyeria)",type:"Bodega de cava",p:"€",t:"Cava barato, bocadillos generosos y ambiente caótico genial. Institución del barrio."},
+          {n:"Kaiku",type:"Cocina marinera creativa",p:"€€",t:"Arroz de sepia socarrat legendario. Terraza frente al mar. Cocina marinera con toque moderno."}
+        ],
+        route:"Metro Barceloneta → Mercat → Calles interiores (Sant Carles) → Plaça Barceloneta → Passeig Marítim (atardecer) → Cena"
+      },
+      {
+        week:9, date:"19 abr", sunset:"20:44", name:"Eixample Esquerra", district:"L'Eixample", emoji:"🏛️", color:"#6C3483", lc:"#F3EDF7",
+        desc:"La parte izquierda del ensanche de Cerdà. Menos turístico que la Dreta, es un barrio de chaflanes elegantes, patios interiores y vida local de clase media. Aquí se vive el modernismo sin aglomeraciones.",
+        pts:[
+          {n:"Mercat de Sant Antoni",t:"Recientemente restaurado. Estructura de hierro modernista y restos de la muralla medieval en el subsuelo. Espectacular."},
+          {n:"Universitat de Barcelona",t:"Edificio neorrománico de Elias Rogent. Jardín interior y claustro precioso. Acceso libre."},
+          {n:"Hospital de Sant Pau (exterior)",t:"Recinto modernista de Domènech i Montaner. Patrimonio de la Humanidad. Fachada mágica al anochecer."},
+          {n:"Superilla de Sant Antoni",t:"Nuevo urbanismo barcelonés. Calles peatonalizadas, terrazas y vida de barrio renovada."},
+          {n:"Carrer del Parlament",t:"Una de las calles más animadas de Sant Antoni. Terrazas, brunch y ambiente joven."}
+        ],
+        rest:[
+          {n:"Cervecería Catalana",type:"Tapas de toda la vida",p:"€€",t:"Siempre llena por algo. Tapas variadas, montaditos y producto de calidad. Sin reservas, paciencia."},
+          {n:"Federal Café",type:"Café australiano",p:"€€",t:"Referente del brunch en Barcelona, pero también buenas cenas ligeras. Terraza en Carrer del Parlament."},
+          {n:"Lolita",type:"Tapas y coctelería",p:"€€",t:"En pleno Carrer Tamarit. Tapas creativas, buen ambiente y terraza."}
+        ],
+        route:"Metro Sant Antoni → Mercat Sant Antoni → Carrer Parlament → Superilla → Universidad (claustro) → Cena"
+      },
+      {
+        week:10, date:"26 abr", sunset:"20:52", name:"Eixample Dreta", district:"L'Eixample", emoji:"✨", color:"#C7962A", lc:"#FDF6E8",
+        desc:"El escaparate modernista de Barcelona. El Passeig de Gràcia con Batlló, La Pedrera y Amatller forman la Manzana de la Discordia. Más allá del eje turístico hay calles residenciales elegantes y comercio sofisticado.",
+        pts:[
+          {n:"Manzana de la Discòrdia",t:"Tres genios compitiendo: Gaudí (Batlló), Domènech i Montaner (Lleó Morera) y Puig i Cadafalch (Amatller). Fachadas iluminadas de noche."},
+          {n:"La Pedrera (Casa Milà)",t:"Gaudí en estado puro. Fachada ondulante y guerreros de la azotea. Visitas nocturnas disponibles."},
+          {n:"Sagrada Família (exterior)",t:"Si no la has visto de noche iluminada, merece el paseo. Fachadas del Nacimiento y Pasión: dos mundos distintos."},
+          {n:"Mercat de la Concepció",t:"El mercado de las flores. Ambiente local entre puestos de flores y comida."},
+          {n:"Passatge de la Concepció",t:"Pasaje interior con jardín, galerías y restaurantes. Un atajo precioso."}
+        ],
+        rest:[
+          {n:"Ciudad Condal",type:"Tapas y barra",p:"€€",t:"Barra generosa, tapas variadas y buen producto. En pleno Passeig de Gràcia. Cola habitual."},
+          {n:"Mont Bar",type:"Cocina de mercado y vinos",p:"€€",t:"Cocina de temporada con carta de vinos excepcional. Local pequeño y acogedor."},
+          {n:"Cervecería Catalana",type:"Tapas clásicas",p:"€€",t:"Si no fuiste en el Eixample Esquerra, ahora es tu momento."}
+        ],
+        route:"Metro Passeig de Gràcia → Manzana Discòrdia → La Pedrera → Passatge Concepció → Mercat Concepció → Sagrada Família (exterior noche) → Cena"
+      },
+      {
+        week:11, date:"3 may", sunset:"21:01", name:"Sant Andreu", district:"Sant Andreu", emoji:"🏘️", color:"#2E4057", lc:"#ECF0F3",
+        desc:"Otro antiguo pueblo anexionado en 1897 que conserva su personalidad. El barrio que todo el mundo olvida y que todo el que lo visita adora. Plaça del Comerç, Fabra i Coats y un ambiente de pueblo genuino.",
+        pts:[
+          {n:"Plaça del Comerç",t:"Corazón del antiguo pueblo. Edificios históricos, terrazas y vida social del barrio."},
+          {n:"Fabra i Coats",t:"Antigua fábrica textil reconvertida en centro de creación artística. Exposiciones y espacio industrial impresionante."},
+          {n:"Rambla de Sant Andreu",t:"La rambla del barrio. Comercio local, paseo bajo los árboles y casas de pueblo."},
+          {n:"Iglesia de Sant Andreu de Palomar",t:"Origen del barrio. Templo con elementos románicos y góticos."},
+          {n:"Mercat de Sant Andreu",t:"Mercado de barrio con paradas de toda la vida. Nada turístico."}
+        ],
+        rest:[
+          {n:"Collonut Sant Andreu",type:"Bar de barrio moderno",p:"€",t:"Concepto de 'nevera del vecino'. Productos locales, bocadillos creativos y vermut."},
+          {n:"La Masia de Sant Andreu",type:"Cocina catalana",p:"€€",t:"Masía histórica en pleno barrio. Cocina catalana tradicional en entorno rural imposible."},
+          {n:"Bar del Mercat",type:"Tapas de mercado",p:"€",t:"Dentro del mercado. Tapas con producto fresco del día. Autenticidad total."}
+        ],
+        route:"Metro Sant Andreu → Rambla de Sant Andreu → Plaça del Comerç → Iglesia → Fabra i Coats → Mercat → Cena"
+      },
+      {
+        week:12, date:"10 may", sunset:"21:09", name:"Poblenou", district:"Sant Martí", emoji:"🏭", color:"#E07A5F", lc:"#FDF1EE",
+        desc:"El Manchester catalán reconvertido en distrito de la innovación. Fábricas del XIX transformadas en lofts y centros culturales. La Rambla del Poblenou conserva vida de pueblo, y el cementerio es una joya del arte funerario.",
+        pts:[
+          {n:"Rambla del Poblenou",t:"Terrazas, tiendas locales y el ritmo tranquilo del antiguo pueblo de Sant Martí."},
+          {n:"Palo Alto Market",t:"Mercado en antigua fábrica. Eventos culturales, food trucks y ambiente creativo. Consultar calendario."},
+          {n:"Cementiri del Poblenou",t:"Cementerio neoclásico. El 'Petó de la Mort' (Beso de la Muerte) es su escultura más famosa."},
+          {n:"Can Framis (Fundació Vila Casas)",t:"Museo de pintura contemporánea en fábrica del XVIII. Jardín escultórico."},
+          {n:"Superilla del Poblenou",t:"El modelo de superilla original. Calles peatonalizadas y nueva vida de barrio."}
+        ],
+        rest:[
+          {n:"Els Pescadors",type:"Cocina marinera",p:"€€€",t:"En Plaça de Prim, la plaza más bonita del Poblenou. Arroces y pescados de referencia. Terraza idílica."},
+          {n:"La Tía Brava",type:"Brasas y tapas",p:"€€",t:"Cocina a la brasa en antiguo almacén industrial. Ambiente canalla y producto excelente."},
+          {n:"Aguaribay",type:"Cocina orgánica",p:"€€",t:"Referente de cocina saludable y ecológica. Producto de temporada y km0."}
+        ],
+        route:"Metro Poblenou → Rambla del Poblenou → Plaça Prim → Cementiri → Can Framis → Superilla → Cena"
+      }
+    ];
+
+    function App() {
+      const [sel, setSel] = useState(null);
+      const [expR, setExpR] = useState(null);
+      const [done, setDone] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('bcn_done') || '{}'); } catch { return {}; }
+      });
+
+      useEffect(() => {
+        try { localStorage.setItem('bcn_done', JSON.stringify(done)); } catch {}
+      }, [done]);
+
+      const toggleDone = (w, e) => {
+        e.stopPropagation();
+        setDone(d => ({...d, [w]: !d[w]}));
+      };
+
+      if (sel !== null) {
+        const n = N[sel];
+        return (
+          <div className="detail">
+            <div className="detail-header" style={{background: n.color}}>
+              <button className="back-btn" onClick={() => {setSel(null); setExpR(null);}}>← Volver</button>
+              <div className="detail-emoji">{n.emoji}</div>
+              <div className="detail-name">{n.name}</div>
+              <div className="detail-district">{n.district}</div>
+            </div>
+            <div className="detail-meta" style={{background: n.lc}}>
+              <span>📅 Semana {n.week} — {n.date}</span>
+              <span>🌅 Ocaso ≈ {n.sunset}</span>
+            </div>
+            <div className="detail-content">
+              <p className="detail-desc">{n.desc}</p>
+              <div className="route-box" style={{background: n.lc, border: `1px solid ${n.color}22`}}>
+                <div className="route-title" style={{color: n.color}}>🗺️ Ruta sugerida</div>
+                <div className="route-text">{n.route}</div>
+              </div>
+              <div className="section-title" style={{color: n.color, borderBottomColor: n.color}}>Qué ver</div>
+              {n.pts.map((p, i) => (
+                <div className="poi" key={i}>
+                  <h4>{p.n}</h4>
+                  <p>{p.t}</p>
+                </div>
+              ))}
+              <div className="section-title" style={{color: n.color, borderBottomColor: n.color, marginTop: 36}}>Dónde comer</div>
+              {n.rest.map((r, i) => (
+                <div className={`rest-card${expR===i?' active':''}`} key={i}
+                  style={expR===i ? {borderColor: n.color} : {}}
+                  onClick={() => setExpR(expR===i ? null : i)}>
+                  <div className="rest-top">
+                    <div>
+                      <span className="rest-name">{r.n}</span>
+                      <span className="rest-price" style={{color: n.color, background: n.lc}}>{r.p}</span>
+                    </div>
+                    <span className="arrow">{expR===i ? '▲' : '▼'}</span>
+                  </div>
+                  <div className="rest-type">{r.type}</div>
+                  {expR===i && <div className="rest-note">{r.t}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div className="hero">
+            <div className="hero-sub">Guía personal</div>
+            <h1>Barcelona</h1>
+            <h2>un barrio cada semana</h2>
+            <div className="hero-info">12 semanas · De oeste a este · Desde las 18h · Feb–May 2026</div>
+          </div>
+          <div className="sun-banner">☀️ En febrero el sol se pone ~18:25. Para mayo tendrás luz hasta las 21:00+. Los barrios más compactos van primero.</div>
+          <div className="cards">
+            {N.map((n, i) => (
+              <div className={`card${done[n.week]?' done':''}`} key={i} onClick={() => setSel(i)}>
+                <div className="card-color" style={{background: n.color}}>
+                  <div className="card-emoji">{n.emoji}</div>
+                  <div className="card-sem">Sem {n.week}</div>
+                </div>
+                <div className="card-body">
+                  <div className="card-top">
+                    <span className="card-name">
+                      {n.name}
+                      {done[n.week] && <span className="done-badge">✓ Hecho</span>}
+                    </span>
+                    <span className="card-date">{n.date}</span>
+                  </div>
+                  <div className="card-meta">{n.district} · 🌅 {n.sunset}</div>
+                  <div className="card-desc">{n.desc}</div>
+                  <div className="check-row" style={{marginTop: 8}}>
+                    <input type="checkbox" checked={!!done[n.week]}
+                      onChange={(e) => toggleDone(n.week, e)}
+                      style={{cursor:'pointer', width:16, height:16}} />
+                    <span className="check-label">Visitado</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
